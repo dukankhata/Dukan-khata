@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Khata App - Login</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <style>
+    body { font-family: Arial; padding: 30px; background: #f5f5f5; }
+    input, button { padding: 10px; margin: 5px; width: 250px; }
+    #app { display: none; margin-top: 30px; }
+  </style>
+</head>
+<body>
+
+  <h2>Login / Register</h2>
+  <input type="email" id="email" placeholder="Enter Email"><br>
+  <input type="password" id="password" placeholder="Enter Password"><br>
+  <button onclick="login()">Login / Register</button>
+
+  <div id="app">
+    <h3>Welcome, <span id="userEmail"></span></h3>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <script>
+    // Firebase config - REPLACE with your Firebase project config
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(userCred => {
+          showApp(userCred.user);
+        })
+        .catch(() => {
+          auth.createUserWithEmailAndPassword(email, password)
+            .then(userCred => {
+              showApp(userCred.user);
+            })
+            .catch(err => alert("Error: " + err.message));
+        });
+    }
+
+    function showApp(user) {
+      document.getElementById("userEmail").innerText = user.email;
+      document.getElementById("app").style.display = "block";
+    }
+
+    function logout() {
+      auth.signOut().then(() => {
+        location.reload();
+      });
+    }
+
+    // Auto-login if already signed in
+    auth.onAuthStateChanged(user => {
+      if (user) showApp(user);
+    });
+  </script>
+
+</body>
+</html>
